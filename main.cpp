@@ -30,7 +30,7 @@ int main()
             {
                 if(e.key.code == sf::Keyboard::Enter)
                 {
-                    std::cout << "Solve that shit motherfucker" << std::endl;
+                    std::cout << circuit.get_adjacency_matrix() << std::endl;
                 }
             }
         }

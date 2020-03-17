@@ -16,7 +16,7 @@ class UI
         void handle_mouse_clicks();
         std::vector<sf::RectangleShape> get_shapes();
     private:
-        Circuit circuit;
+        Circuit& circuit;
         sf::RenderWindow& window;
         UIGraphics ui_graphics;
 

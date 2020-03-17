@@ -2,6 +2,8 @@
 
 #include<vector>
 
+#include<eigen3/Eigen/Core>
+
 enum NodeType
 {
     NO_TYPE_NODE, // Gris
@@ -17,6 +19,8 @@ struct Node
     int y;
     unsigned int type;
     float value;
+
+    friend bool operator==(const Node&, const Node&);
 };
 
 struct Arrow
@@ -35,6 +39,7 @@ class Circuit
         void add_arrow(Node a, Node b);
         const std::vector<Node>& get_nodes() const;
         const std::vector<Arrow>& get_arrows() const;
+        Eigen::MatrixXi get_adjacency_matrix() const;
     private:
         std::vector<Node> nodes;
         std::vector<Arrow> arrows;
