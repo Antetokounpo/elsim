@@ -33,6 +33,7 @@ class UI
         sf::Vector2i get_mouse_position();
 
         void select_node(Node n);
+        void delete_selected_node();
         void set_node_value(int value);
         NodeType node_type_mode();
         NodeType next_node;

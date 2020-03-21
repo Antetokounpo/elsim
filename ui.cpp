@@ -30,6 +30,49 @@ void UI::select_node(Node n)
     is_node_selected = true;
 }
 
+void UI::delete_selected_node()
+{
+    if(!is_node_selected)
+        return;
+
+    std::vector<Arrow> arrows_to_remove;
+    for(auto& a : circuit.get_arrows())
+    {
+        if(selected_node == a.a || selected_node == a.b)
+            arrows_to_remove.push_back(a);
+    }
+
+    for(auto& a : arrows_to_remove)
+    {
+        circuit.remove_arrow(circuit.get_arrow_index(a));
+    }
+
+
+    unsigned int node_index = circuit.get_node_index(selected_node);
+    NodeType node_type = selected_node.type;
+    circuit.remove_node(node_index);
+
+    if(node_type != NO_TYPE_NODE)
+    {
+        int inverse_type_offset;
+        if(node_type % 2)
+        {
+            inverse_type_offset = 1;
+            select_node(circuit.get_nodes()[node_index]);
+        }
+        else
+        {
+            inverse_type_offset = -1;
+            if(node_index > 0)
+                select_node(circuit.get_nodes()[node_index-1]);
+        }
+
+        if(selected_node.type == NodeType(node_type+inverse_type_offset)) 
+            delete_selected_node();
+    }
+    is_node_selected = false;
+}
+
 NodeType UI::node_type_mode()
 {
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::R))
@@ -53,6 +96,8 @@ void UI::handle_keyboard_inputs(sf::Event e)
 {
     if(e.key.code == sf::Keyboard::Enter && current_state == UIStates::NORMAL)
         std::cout << Graph::is_graph_antisymmetric(circuit.get_adjacency_matrix()) << std::endl;
+    else if(e.key.code == sf::Keyboard::D && current_state == UIStates::NORMAL)
+        delete_selected_node();
     else if(current_state == UIStates::NORMAL)
         return;
     else if(current_state == UIStates::TEXT_INPUT)

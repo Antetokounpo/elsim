@@ -5,6 +5,10 @@ bool operator==(const Node& lhs, const Node& rhs)
     return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
+bool operator==(const Arrow& lhs, const Arrow& rhs)
+{
+    return lhs.a == rhs.a && lhs.b == rhs.b;
+}
 
 Circuit::Circuit(){}
 
@@ -46,6 +50,14 @@ unsigned int Circuit::get_node_index(Node n) const
     it = std::find(nodes.begin(), nodes.end(), n);
 
     return it - nodes.begin();
+}
+
+unsigned int Circuit::get_arrow_index(Arrow a) const
+{
+    std::vector<Arrow>::const_iterator it;
+    it = std::find(arrows.begin(), arrows.end(), a);
+
+    return it - arrows.begin();
 }
 
 void Circuit::set_node_value(unsigned int index, int value)
