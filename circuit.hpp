@@ -2,9 +2,9 @@
 
 #include<vector>
 
-#include<eigen3/Eigen/Core>
+#include "graph.hpp"
 
-enum NodeType
+enum NodeType 
 {
     NO_TYPE_NODE, // Gris
     NEG_SOURCE,   // Noir
@@ -17,7 +17,7 @@ struct Node
 {
     int x;
     int y;
-    unsigned int type;
+    NodeType type;
     float value;
 
     friend bool operator==(const Node&, const Node&);
@@ -36,11 +36,21 @@ class Circuit
         ~Circuit();
 
         void add_node(int x, int y, NodeType type);
+        void remove_node(unsigned int index);
         void add_arrow(Node a, Node b);
+        void remove_arrow(unsigned int index);
         const std::vector<Node>& get_nodes() const;
         const std::vector<Arrow>& get_arrows() const;
-        Eigen::MatrixXi get_adjacency_matrix() const;
+        void set_node_value(unsigned int index, int value);
+        unsigned int get_node_index(Node n) const;
+        GraphMatrix get_adjacency_matrix() const;
     private:
         std::vector<Node> nodes;
         std::vector<Arrow> arrows;
 };
+
+/*
+    TEMPORAIRE
+    Les caractéristiques d'un graphe représentant un circuit électrique sont:
+        - Anti-symétrique
+*/

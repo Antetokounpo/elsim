@@ -2,17 +2,19 @@
 
 #include<vector>
 #include<cmath>
+#include<iostream> //temp
 
 #include<SFML/Graphics.hpp>
 
 #include "circuit.hpp"
+#include "graph.hpp"
 
 UI::UI(Circuit& c, sf::RenderWindow& w) : circuit(c), window(w)
 {
     is_node_selected = false;
-    node_size = {20, 20};
-    line_width = 5;
     next_node = NO_TYPE_NODE;
+    current_state = UIStates::NORMAL;
+    font.loadFromFile("fonts/Pixeled.ttf"); // Load font
 }
 
 UI::~UI(){}
@@ -38,8 +40,74 @@ NodeType UI::node_type_mode()
         return NO_TYPE_NODE;
 }
 
+void UI::set_node_value(int value)
+{
+    if(!is_node_selected)
+        return;
+
+    circuit.set_node_value(circuit.get_node_index(selected_node), value);
+    is_node_selected = false;
+}
+
+void UI::handle_keyboard_inputs(sf::Event e)
+{
+    if(e.key.code == sf::Keyboard::Enter && current_state == UIStates::NORMAL)
+        std::cout << Graph::is_graph_antisymmetric(circuit.get_adjacency_matrix()) << std::endl;
+    else if(current_state == UIStates::NORMAL)
+        return;
+    else if(current_state == UIStates::TEXT_INPUT)
+    {
+        switch(e.key.code)
+        {
+            case sf::Keyboard::Num0:
+                input_value += "0";
+                break;
+            case sf::Keyboard::Num1:
+                input_value += "1";
+                break;
+            case sf::Keyboard::Num2:
+                input_value += "2";
+                break;
+            case sf::Keyboard::Num3:
+                input_value += "3";
+                break;
+            case sf::Keyboard::Num4:
+                input_value += "4";
+                break;
+            case sf::Keyboard::Num5:
+                input_value += "5";
+                break;
+            case sf::Keyboard::Num6:
+                input_value += "6";
+                break;
+            case sf::Keyboard::Num7:
+                input_value += "7";
+                break;
+            case sf::Keyboard::Num8:
+                input_value += "8";
+                break;
+            case sf::Keyboard::Num9:
+                input_value += "9";
+                break;
+            
+            case sf::Keyboard::Backspace:
+                input_value.pop_back();
+                break;
+            case sf::Keyboard::Enter:
+                circuit.set_node_value(circuit.get_node_index(selected_node), std::stoi(input_value));
+                is_node_selected = false;
+                current_state = UIStates::NORMAL;
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 void UI::handle_mouse_clicks()
 {
+    if(current_state != UIStates::NORMAL)
+        return;
 
     NodeType current_type_mode;
     if(next_node == NO_TYPE_NODE) // S'il y a une prochaine node de set, on la select, sinon on se fie au clavier
@@ -66,7 +134,15 @@ void UI::handle_mouse_clicks()
                 }
                 return;
             }
+
             select_node(n); // Sinon on sélectionne la node pointée
+
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::V))
+            {
+                current_state = UIStates::TEXT_INPUT;
+                input_value = "";
+            }
+
             return;
         }
     }
@@ -94,27 +170,39 @@ void UI::handle_mouse_clicks()
         next_node = NO_TYPE_NODE;
 }
 
-std::vector<sf::RectangleShape> UI::get_shapes()
+void UI::draw()
 {
     std::vector<sf::RectangleShape> shapes;
     for(const Arrow& a: circuit.get_arrows()) // Les arcs en premier, car on veut qu'ils apparaissent en-dessous des nodes 
     {
-        shapes.push_back(ui_graphics.get_visual_arrow(a));
+        window.draw(ui_graphics.get_visual_arrow(a));
     }
 
-    if(is_node_selected) // On dessine une preview du prochain arc
+    if(is_node_selected && current_state == UIStates::NORMAL) // On dessine une preview du prochain arc, sauf si on est en mode text input
     {
         sf::Vector2i mouse_position = get_mouse_position();
         sf::RectangleShape current_arrow = ui_graphics.get_visual_arrow({selected_node, {mouse_position.x, mouse_position.y}});
         current_arrow.setFillColor(sf::Color::White);
-        
-        shapes.push_back(current_arrow);
+
+        window.draw(current_arrow);
     }
 
     for(const Node& n: circuit.get_nodes())
     {
-        shapes.push_back(ui_graphics.get_visual_node(n));
+        window.draw(ui_graphics.get_visual_node(n));
     }
 
-    return shapes;
+    if(current_state == UIStates::TEXT_INPUT)
+    {
+        sf::Text text;
+        text.setFont(font);
+        text.setFillColor(sf::Color::Black);
+
+        text.setString("Input value: "+input_value);
+        text.setCharacterSize(24);
+
+        text.setPosition(20, 20);
+
+        window.draw(text);
+    }
 }

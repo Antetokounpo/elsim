@@ -1,10 +1,10 @@
 CC=g++
-DEPS = circuit.hpp ui.hpp ui_graphics.hpp ui_math.hpp
+DEPS = circuit.hpp ui.hpp ui_graphics.hpp ui_math.hpp graph.hpp
 CFLAGS=-Wall
 
 ODIR=obj
 
-_OBJ = circuit.o ui.o ui_graphics.o ui_math.o main.o 
+_OBJ = circuit.o ui.o ui_graphics.o ui_math.o graph.o main.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 LIBS=-lsfml-graphics -lsfml-window -lsfml-system

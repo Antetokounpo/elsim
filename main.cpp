@@ -5,6 +5,8 @@
 #include "circuit.hpp"
 #include "ui.hpp"
 
+#include "graph.hpp"
+
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Kirchhoff");
@@ -28,19 +30,13 @@ int main()
             }
             else if(e.type == sf::Event::KeyPressed)
             {
-                if(e.key.code == sf::Keyboard::Enter)
-                {
-                    std::cout << circuit.get_adjacency_matrix() << std::endl;
-                }
+                ui.handle_keyboard_inputs(e);
             }
         }
 
         window.clear(sf::Color::Yellow);
 
-        std::vector<sf::RectangleShape> drawable_shapes = ui.get_shapes();
-
-        for(sf::RectangleShape& shape: drawable_shapes)
-            window.draw(shape);
+        ui.draw();
 
         window.display();
     }
