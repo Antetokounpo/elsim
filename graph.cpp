@@ -1,5 +1,7 @@
 #include "graph.hpp"
 
+#include<vector>
+
 GraphMatrix Graph::get_comatrix(GraphMatrix matrix_graph)
 {
     /*
@@ -13,6 +15,38 @@ GraphMatrix Graph::get_comatrix(GraphMatrix matrix_graph)
     matrix_graph -= Eigen::MatrixXi::Ones(n, m);
     
     return matrix_graph.cwiseAbs();
+}
+
+GraphMatrix Graph::get_spanning_tree(GraphMatrix matrix_graph)
+{
+    GraphMatrix a = matrix_graph;
+    int n = a.rows();
+    std::vector<int> c (n, 0);
+    c[0] = 1;
+    GraphMatrix b(n, n);
+    b.fill(0);
+
+    for(int i = 0; i<n; ++i)
+    {
+        for(int j = 0; j<n; ++j)
+        {
+            if(a(i, j) && c[i] && !c[j])
+            {
+                b(i, j) = 1;
+                b(j, i) = 1;
+                c[j] = 1;
+            }
+
+            if(a(i, j) && !c[i] && c[j])
+            {
+                b(i, j) = 1;
+                b(j, i) = 1;
+                c[i] = 1;
+            }
+        }
+    }
+
+    return b;
 }
 
 bool Graph::is_graph_antisymmetric(GraphMatrix matrix_graph)
@@ -29,4 +63,9 @@ bool Graph::is_graph_antisymmetric(GraphMatrix matrix_graph)
     GraphMatrix m = get_comatrix(matrix_graph).transpose() - matrix_graph;
 
     return m == m.cwiseAbs();
+}
+
+int Graph::count_cycles(GraphMatrix matrix_graph)
+{
+    
 }

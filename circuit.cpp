@@ -60,9 +60,19 @@ unsigned int Circuit::get_arrow_index(Arrow a) const
     return it - arrows.begin();
 }
 
-void Circuit::set_node_value(unsigned int index, int value)
+void Circuit::set_arrow_value(unsigned int index, int value, ArrowType type)
 {
+    arrows[index].type = type;
+    arrows[index].value = value;
+}
+
+void Circuit::set_node_value(unsigned int index, float value)
+{
+    int node_type_offset = nodes[index].type % 2 ? 1 : -1;
+
+    // Les deux bornes de l'élément doivent avoir la même valeur, question de logique
     nodes[index].value = value;
+    nodes[index+node_type_offset].value = value;
 }
 
 GraphMatrix Circuit::get_adjacency_matrix() const

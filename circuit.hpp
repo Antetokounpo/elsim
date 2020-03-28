@@ -13,6 +13,12 @@ enum NodeType
     POS_RESISTOR  // Cyan
 };
 
+enum class ArrowType
+{
+    RESISTANCE,
+    VOLTAGE
+};
+
 struct Node
 {
     int x;
@@ -27,6 +33,8 @@ struct Arrow
 {
     Node a;
     Node b;
+    ArrowType type;
+    float value;
 
     friend bool operator==(const Arrow&, const Arrow&);
 };
@@ -46,7 +54,8 @@ class Circuit
         const std::vector<Node>& get_nodes() const;
         const std::vector<Arrow>& get_arrows() const;
 
-        void set_node_value(unsigned int index, int value);
+        void set_arrow_value(unsigned int index, int value, ArrowType type);
+        void set_node_value(unsigned int index, float value);
 
         unsigned int get_node_index(Node n) const;
         unsigned int get_arrow_index(Arrow a) const;
@@ -62,4 +71,5 @@ class Circuit
     Les caractéristiques d'un graphe représentant un circuit électrique sont:
         - Anti-symétrique
         - Connexe
+        - Cycle élémentaire
 */

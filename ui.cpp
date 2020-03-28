@@ -83,13 +83,21 @@ NodeType UI::node_type_mode()
         return NO_TYPE_NODE;
 }
 
-void UI::set_node_value(int value)
+void UI::set_node_value(float value)
 {
-    if(!is_node_selected)
-        return;
-
     circuit.set_node_value(circuit.get_node_index(selected_node), value);
-    is_node_selected = false;
+
+    /*
+    int node_type_offset = selected_node.type % 2 ? 1 : -1;
+    ArrowType arrow_type = selected_node.type < 3 ? ArrowType::RESISTANCE : ArrowType::VOLTAGE; // Si le type est inférieur à 3, ca ne peut être qu'une réistance selon l'enum
+
+    for(auto& a : circuit.get_arrows())
+    {
+        // On trouve l'arrow qui fait le pont entre l'élément positif et l'élément négatif, et on set sa value
+        if((a.a == selected_node && a.b.type == selected_node.type + node_type_offset) || (a.b == selected_node && a.a.type == selected_node.type + node_type_offset))
+            circuit.set_arrow_value(circuit.get_arrow_index(a), value, arrow_type);
+    }
+    */
 }
 
 void UI::handle_keyboard_inputs(sf::Event e)
@@ -134,12 +142,15 @@ void UI::handle_keyboard_inputs(sf::Event e)
             case sf::Keyboard::Num9:
                 input_value += "9";
                 break;
+            case sf::Keyboard::Period:
+                input_value += ".";
+                break;
             
             case sf::Keyboard::Backspace:
                 input_value.pop_back();
                 break;
             case sf::Keyboard::Enter:
-                circuit.set_node_value(circuit.get_node_index(selected_node), std::stoi(input_value));
+                set_node_value(std::stof(input_value));
                 is_node_selected = false;
                 current_state = UIStates::NORMAL;
                 break;
@@ -182,7 +193,7 @@ void UI::handle_mouse_clicks()
 
             select_node(n); // Sinon on sélectionne la node pointée
 
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::V))
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::V) && selected_node.type != NO_TYPE_NODE)
             {
                 current_state = UIStates::TEXT_INPUT;
                 input_value = "";

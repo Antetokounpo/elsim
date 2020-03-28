@@ -34,7 +34,7 @@ class UI
 
         void select_node(Node n);
         void delete_selected_node();
-        void set_node_value(int value);
+        void set_node_value(float value);
         NodeType node_type_mode();
         NodeType next_node;
         bool is_node_selected;
