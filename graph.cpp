@@ -1,7 +1,5 @@
 #include "graph.hpp"
 
-#include<vector>
-
 GraphMatrix Graph::get_comatrix(GraphMatrix matrix_graph)
 {
     /*
@@ -19,6 +17,10 @@ GraphMatrix Graph::get_comatrix(GraphMatrix matrix_graph)
 
 GraphMatrix Graph::get_spanning_tree(GraphMatrix matrix_graph)
 {
+    /*
+        Algorithme pour obtenir un arbre couvrant
+    */
+
     GraphMatrix a = matrix_graph;
     int n = a.rows();
     std::vector<int> c (n, 0);
@@ -65,7 +67,62 @@ bool Graph::is_graph_antisymmetric(GraphMatrix matrix_graph)
     return m == m.cwiseAbs();
 }
 
-int Graph::count_cycles(GraphMatrix matrix_graph)
+GraphMatrix Graph::prune(GraphMatrix matrix_graph)
 {
-    
+    /*
+        On enlève les branches du graphe pour n'y laisser que les sommets
+        faisant partie du cycle. On l'élague.
+    */
+
+    int n = matrix_graph.rows();
+    for(int i = 0; i<n; ++i)
+    {
+        if(matrix_graph.rowwise().sum()(i) == 1)
+        {
+            for(int j = 0; j<n; ++j)
+            {
+                if(matrix_graph(i, j) == 1)
+                {
+                    matrix_graph(i, j) = 0;
+                    matrix_graph(j, i) = 0;
+                    break;
+                }
+            }
+        }
+    }
+
+    return matrix_graph;
+}
+
+std::vector<GraphMatrix> Graph::get_fundamental_set_of_cycles(GraphMatrix a)
+{
+    int n = a.rows();
+    GraphMatrix b = get_spanning_tree(a);
+    GraphMatrix c = a - b;
+    GraphMatrix d = b;
+
+    std::vector<GraphMatrix> cycles;
+
+    int k = 0;
+    for(int i = 0; i<n-1; ++i)
+    {
+        for(int j = i+1; j<n; ++j)
+        {
+            if(c(i, j) == 1)
+            {
+                k++;
+                GraphMatrix dk = d;
+                dk(i, j) = 1;
+                dk(j, i) = 1;
+                cycles.push_back(prune(dk));
+            }
+        }
+    }
+
+    return cycles;
+}
+
+std::vector<GraphMatrix> Graph::orient_cycles(std::vector<GraphMatrix> cycles)
+{
+
 }

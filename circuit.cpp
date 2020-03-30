@@ -89,7 +89,9 @@ GraphMatrix Circuit::get_adjacency_matrix() const
         row = get_node_index(arrow.a);
         col = get_node_index(arrow.b);
 
+        // Le graphe est non directionnel
         m(row, col) = 1;
+        m(col, row) = 1;
     }
 
     return m;
