@@ -1,5 +1,7 @@
 #include "circuit.hpp"
 
+#include<iostream> // temp
+
 bool operator==(const Node& lhs, const Node& rhs)
 {
     return lhs.x == rhs.x && lhs.y == rhs.y;
@@ -83,11 +85,8 @@ GraphMatrix Circuit::get_adjacency_matrix() const
 
     for(Arrow arrow : arrows)
     {
-        std::vector<Node>::const_iterator it;
-        int row, col;
-
-        row = get_node_index(arrow.a);
-        col = get_node_index(arrow.b);
+        int row = get_node_index(arrow.a);
+        int col = get_node_index(arrow.b);
 
         // Le graphe est non directionnel
         m(row, col) = 1;
@@ -95,4 +94,59 @@ GraphMatrix Circuit::get_adjacency_matrix() const
     }
 
     return m;
+}
+
+std::vector<unsigned int> Circuit::cycle_to_node_list(GraphMatrix cycle)
+{
+    int n = cycle.rows();
+    
+    std::vector<unsigned int> adjency_list;
+    for(int i = 0; i<n; ++i)
+    {
+        for(int j = 0; j<n; ++j)
+        {
+            if(cycle(i, j))
+            {
+                adjency_list.push_back(i);
+                adjency_list.push_back(j);
+            }
+        }
+    }
+
+    return adjency_list;
+}
+
+void Circuit::kirchoff_law(std::vector<GraphMatrix> loops)
+{
+    int n = loops.size();
+    Eigen::MatrixXf resistances(n, n);
+    resistances.fill(0.0);
+    Eigen::VectorXf voltages(n);
+    voltages.fill(0.0);
+
+    for(unsigned int l = 0; l<loops.size(); ++l)
+    {
+        std::vector<unsigned int> node_list = cycle_to_node_list(loops[l]);
+
+        for(auto it = node_list.begin(); it != node_list.end(); it += 2)
+        {
+            if(!(nodes[*it].type && nodes[*(it+1)].type))
+                continue;
+            
+            if(std::abs(nodes[*it].type - nodes[*(it+1)].type))
+            {
+                switch(nodes[*it].type)
+                {
+                    case NEG_RESISTOR:
+                    case POS_RESISTOR:
+                        resistances(l, l) += nodes[*it].value;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    std::cout << resistances << std::endl;
 }

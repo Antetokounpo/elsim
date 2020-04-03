@@ -1,5 +1,7 @@
 #include "graph.hpp"
 
+#include<iostream> // temp
+
 GraphMatrix Graph::get_comatrix(GraphMatrix matrix_graph)
 {
     /*
@@ -94,6 +96,55 @@ GraphMatrix Graph::prune(GraphMatrix matrix_graph)
     return matrix_graph;
 }
 
+void Graph::find_entry_point(GraphMatrix cycle, int& i, int& j)
+{
+    int n = cycle.rows();
+    for(int k = 0; k<n; ++k)
+    {
+        for(int l = 0; l<n; ++l)
+        {
+            if(cycle(k, l))
+            {
+                i = k;
+                j = l;
+                return;
+            }
+        }
+    }
+}
+
+std::vector<GraphMatrix> Graph::orient_cycles(std::vector<GraphMatrix> cycles)
+{
+    for(auto& c : cycles)
+    {
+        int n = c.sum()/2;
+
+        int i, j;
+        find_entry_point(c, i, j);
+
+        for(int k = 0; k<n;)
+        {
+            if(!c.rowwise().sum()(i))
+            {
+                i = (i+1) % c.rows();
+                continue;
+            }
+            if(!c.colwise().sum()(j))
+            {
+                j = (j+1) % c.rows();
+                continue;
+            }
+
+            c(i, j) = 0;
+            i = (i+1) % c.rows();
+            j = (j+1) % c.rows();
+            ++k;
+        }
+    }
+
+    return cycles;
+}
+
 std::vector<GraphMatrix> Graph::get_fundamental_set_of_cycles(GraphMatrix a)
 {
     int n = a.rows();
@@ -118,11 +169,6 @@ std::vector<GraphMatrix> Graph::get_fundamental_set_of_cycles(GraphMatrix a)
             }
         }
     }
-
-    return cycles;
-}
-
-std::vector<GraphMatrix> Graph::orient_cycles(std::vector<GraphMatrix> cycles)
-{
-
+    
+    return orient_cycles(cycles);
 }

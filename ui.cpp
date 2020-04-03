@@ -2,7 +2,6 @@
 
 #include<vector>
 #include<cmath>
-#include<iostream> //temp
 
 #include<SFML/Graphics.hpp>
 
@@ -103,7 +102,7 @@ void UI::set_node_value(float value)
 void UI::handle_keyboard_inputs(sf::Event e)
 {
     if(e.key.code == sf::Keyboard::Enter && current_state == UIStates::NORMAL)
-        std::cout << Graph::get_fundamental_set_of_cycles(circuit.get_adjacency_matrix()).size() << std::endl;
+        circuit.kirchoff_law(Graph::get_fundamental_set_of_cycles(circuit.get_adjacency_matrix()));
     else if(e.key.code == sf::Keyboard::D && current_state == UIStates::NORMAL)
         delete_selected_node();
     else if(current_state == UIStates::NORMAL)

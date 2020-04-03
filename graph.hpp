@@ -15,6 +15,7 @@ class Graph
         static std::vector<GraphMatrix> get_fundamental_set_of_cycles(GraphMatrix a);
         static std::vector<GraphMatrix> orient_cycles(std::vector<GraphMatrix> cycles);
         static GraphMatrix prune(GraphMatrix matrix_graph);
+        static void find_entry_point(GraphMatrix cycle, int& i, int& j);
     private:
         Graph(); // Static class
 };

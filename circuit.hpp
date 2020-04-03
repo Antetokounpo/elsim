@@ -61,6 +61,8 @@ class Circuit
         unsigned int get_arrow_index(Arrow a) const;
 
         GraphMatrix get_adjacency_matrix() const;
+        static std::vector<unsigned int> cycle_to_node_list(GraphMatrix cycle);
+        void kirchoff_law(std::vector<GraphMatrix> loops);
     private:
         std::vector<Node> nodes;
         std::vector<Arrow> arrows;
