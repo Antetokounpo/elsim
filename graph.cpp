@@ -23,7 +23,7 @@ GraphMatrix Graph::get_spanning_tree(GraphMatrix matrix_graph)
         Algorithme pour obtenir un arbre couvrant
     */
 
-    GraphMatrix a = matrix_graph;
+    GraphMatrix& a = matrix_graph;
     int n = a.rows();
     std::vector<int> c (n, 0);
     c[0] = 1;

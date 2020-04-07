@@ -248,6 +248,13 @@ void UI::draw()
     for(const Node& n: circuit.get_nodes())
     {
         window.draw(ui_graphics.get_visual_node(n));
+
+        if(n.value)
+        {
+            sf::Text text= ui_graphics.get_value_text(n);
+            text.setFont(font);
+            window.draw(text);
+        }
     }
 
     if(current_state == UIStates::TEXT_INPUT)

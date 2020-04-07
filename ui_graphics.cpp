@@ -67,3 +67,14 @@ bool UIGraphics::check_collision(Node n, int x, int y)
     visual_node.setScale(2.0f, 2.0f);
     return visual_node.getGlobalBounds().contains(x, y);
 }
+
+sf::Text UIGraphics::get_value_text(Node n)
+{
+    sf::Text text;
+    text.setFillColor(sf::Color::Black);
+    text.setString(std::to_string(n.value));
+    text.setCharacterSize(10);
+    text.setPosition(n.x+node_size.x, n.y+node_size.y);
+
+    return text;
+}
