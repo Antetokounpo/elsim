@@ -237,10 +237,13 @@ void UI::draw()
     {
         sf::Vector2i mouse_position = get_mouse_position();
         sf::RectangleShape current_arrow = ui_graphics.get_visual_arrow({selected_node, {mouse_position.x, mouse_position.y}});
-        current_arrow.setFillColor(sf::Color::White);
+        window.setMouseCursorVisible(false);
+        current_arrow.setFillColor(sf::Color::Green);
 
         window.draw(current_arrow);
     }
+    else
+        window.setMouseCursorVisible(true);
 
     for(const Node& n: circuit.get_nodes())
     {

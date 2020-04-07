@@ -130,16 +130,25 @@ void Circuit::kirchoff_law(std::vector<GraphMatrix> loops)
 
         for(auto it = node_list.begin(); it != node_list.end(); it += 2)
         {
+            // Si une des deux nodes n'a pas de type, le lien entre eux est insignifiant
             if(!(nodes[*it].type && nodes[*(it+1)].type))
                 continue;
             
-            if(std::abs(nodes[*it].type - nodes[*(it+1)].type))
+            int type_offset = nodes[*it].type % 2 ? 1 : -1;
+
+            if(nodes[*it].type+type_offset == nodes[*(it+1)].type && *it == *(it+1)-type_offset)
             {
                 switch(nodes[*it].type)
                 {
                     case NEG_RESISTOR:
                     case POS_RESISTOR:
                         resistances(l, l) += nodes[*it].value;
+                        break;
+                    case NEG_SOURCE:
+                        voltages(l) += nodes[*it].value;
+                        break;
+                    case POS_SOURCE:
+                        voltages(l) -= nodes[*it].value;
                         break;
                     default:
                         break;
@@ -149,4 +158,5 @@ void Circuit::kirchoff_law(std::vector<GraphMatrix> loops)
     }
 
     std::cout << resistances << std::endl;
+    std::cout << voltages << std::endl;
 }

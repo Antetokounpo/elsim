@@ -62,5 +62,8 @@ sf::RectangleShape UIGraphics::get_visual_arrow(Arrow a)
 
 bool UIGraphics::check_collision(Node n, int x, int y)
 {
-    return get_visual_node(n).getGlobalBounds().contains(x, y);
+    sf::RectangleShape visual_node = get_visual_node(n);
+    visual_node.setOrigin(node_size.x/2, node_size.y/2);
+    visual_node.setScale(2.0f, 2.0f);
+    return visual_node.getGlobalBounds().contains(x, y);
 }

@@ -77,17 +77,17 @@ GraphMatrix Graph::prune(GraphMatrix matrix_graph)
     */
 
     int n = matrix_graph.rows();
-    for(int i = 0; i<n; ++i)
+
+    for(int k = 0; k<n; ++k)
     {
-        if(matrix_graph.rowwise().sum()(i) == 1)
+        for(int i = 0; i<n; ++i)
         {
             for(int j = 0; j<n; ++j)
             {
-                if(matrix_graph(i, j) == 1)
+                if(matrix_graph(i, j) == 1 && (matrix_graph.rowwise().sum()(i) == 1 || matrix_graph.colwise().sum()(j) == 1))
                 {
                     matrix_graph(i, j) = 0;
                     matrix_graph(j, i) = 0;
-                    break;
                 }
             }
         }
@@ -117,28 +117,27 @@ std::vector<GraphMatrix> Graph::orient_cycles(std::vector<GraphMatrix> cycles)
 {
     for(auto& c : cycles)
     {
-        int n = c.sum()/2;
+        const int n = c.rows();
+        const int m = c.sum()/2;
 
-        int i, j;
+        int i = -1, j = -1;
         find_entry_point(c, i, j);
 
-        for(int k = 0; k<n;)
+        int k = 0;
+        while(k<m)
         {
-            if(!c.rowwise().sum()(i))
-            {
-                i = (i+1) % c.rows();
-                continue;
-            }
-            if(!c.colwise().sum()(j))
-            {
-                j = (j+1) % c.rows();
-                continue;
-            }
-
             c(i, j) = 0;
-            i = (i+1) % c.rows();
-            j = (j+1) % c.rows();
             ++k;
+
+            for(int l = (i+1) % n;; l = (l+1) % n)
+            {
+                if(c(j, l))
+                {
+                    i = j;
+                    j = l;
+                    break;
+                }
+            }
         }
     }
 
@@ -169,6 +168,6 @@ std::vector<GraphMatrix> Graph::get_fundamental_set_of_cycles(GraphMatrix a)
             }
         }
     }
-    
+
     return orient_cycles(cycles);
 }
