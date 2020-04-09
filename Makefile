@@ -1,6 +1,6 @@
 CC=g++
 DEPS = circuit.hpp ui.hpp ui_graphics.hpp ui_math.hpp graph.hpp
-CFLAGS=-Wall -O3
+CFLAGS=-Wall
 
 ODIR=obj
 
