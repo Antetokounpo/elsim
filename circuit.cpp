@@ -135,7 +135,7 @@ void Circuit::kirchoff_law(std::vector<GraphMatrix> loops)
             for(int i = 0; i<m; ++i)
             {
                 for(int j = 0; j<m; ++j)
-            {
+                {
                     if(current_loop(i, j) != 2)
                         continue;
 
@@ -168,6 +168,11 @@ void Circuit::kirchoff_law(std::vector<GraphMatrix> loops)
                     }
                 }
             }
+        }
+
+        if(voltages(l) < 0)
+        {
+                resistances.row(l) = resistances.row(l).cwiseAbs();
         }
     }
 

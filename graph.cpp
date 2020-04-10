@@ -39,6 +39,7 @@ GraphMatrix Graph::get_spanning_tree(GraphMatrix matrix_graph)
                 b(i, j) = 1;
                 b(j, i) = 1;
                 c[j] = 1;
+                break;
             }
 
             if(a(i, j) && !c[i] && c[j])
@@ -46,6 +47,7 @@ GraphMatrix Graph::get_spanning_tree(GraphMatrix matrix_graph)
                 b(i, j) = 1;
                 b(j, i) = 1;
                 c[i] = 1;
+                break;
             }
         }
     }
