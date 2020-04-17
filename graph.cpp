@@ -17,42 +17,35 @@ GraphMatrix Graph::get_comatrix(GraphMatrix matrix_graph)
     return matrix_graph.cwiseAbs();
 }
 
+GraphMatrix Graph::dfs(const GraphMatrix& matrix_graph, GraphMatrix& tree, std::vector<bool>& discovered, unsigned int v)
+{
+    discovered[v] = true;
+    for(int i = 0; i<matrix_graph.rows(); ++i)
+    {
+        if(matrix_graph(v, i) == 1 && !discovered[i])
+        {
+            tree(v, i) = 1;
+            tree(i, v) = 1;
+            dfs(matrix_graph, tree, discovered, i);
+        }
+    }
+
+    return tree;
+}
+
 GraphMatrix Graph::get_spanning_tree(GraphMatrix matrix_graph)
 {
     /*
         Algorithme pour obtenir un arbre couvrant
     */
 
-    GraphMatrix& a = matrix_graph;
-    int n = a.rows();
-    std::vector<int> c (n, 0);
-    c[0] = 1;
-    GraphMatrix b(n, n);
-    b.fill(0);
+    int n = matrix_graph.rows();
+    GraphMatrix tree(n, n);
+    tree.fill(0);
+    std::vector<bool> discovered(n, false);
+    auto[i, j] = find_root_node(matrix_graph);
 
-    for(int i = 0; i<n; ++i)
-    {
-        for(int j = 0; j<n; ++j)
-        {
-            if(a(i, j) && c[i] && !c[j])
-            {
-                b(i, j) = 1;
-                b(j, i) = 1;
-                c[j] = 1;
-                break;
-            }
-
-            if(a(i, j) && !c[i] && c[j])
-            {
-                b(i, j) = 1;
-                b(j, i) = 1;
-                c[i] = 1;
-                break;
-            }
-        }
-    }
-
-    return b;
+    return dfs(matrix_graph, tree, discovered, i);
 }
 
 bool Graph::is_graph_antisymmetric(GraphMatrix matrix_graph)
@@ -98,21 +91,21 @@ GraphMatrix Graph::prune(GraphMatrix matrix_graph)
     return matrix_graph;
 }
 
-void Graph::find_entry_point(GraphMatrix cycle, int& i, int& j)
+std::pair<int, int> Graph::find_root_node(GraphMatrix g)
 {
-    int n = cycle.rows();
-    for(int k = 0; k<n; ++k)
+    int n = g.rows();
+    for(int i = 0; i<n; ++i)
     {
-        for(int l = 0; l<n; ++l)
+        for(int j = 0; j<n; ++j)
         {
-            if(cycle(k, l))
+            if(g(i, j))
             {
-                i = k;
-                j = l;
-                return;
+                return std::make_pair(i, j);
             }
         }
     }
+
+    return std::make_pair(-1, -1); // In case the graph is empty
 }
 
 std::vector<GraphMatrix> Graph::orient_cycles(std::vector<GraphMatrix> cycles)
@@ -122,8 +115,7 @@ std::vector<GraphMatrix> Graph::orient_cycles(std::vector<GraphMatrix> cycles)
         const int n = c.rows();
         const int m = c.sum()/2;
 
-        int i = -1, j = -1;
-        find_entry_point(c, i, j);
+        auto[i, j] = find_root_node(c);
 
         int k = 0;
         while(k<m)
