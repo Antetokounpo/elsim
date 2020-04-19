@@ -148,10 +148,12 @@ std::vector<float> Circuit::get_amps(const std::vector<GraphMatrix>& loops)
                                 resistances(l, k) += nodes[i].value;
                                 break;
                             case NEG_SOURCE:
-                                voltages(l) += nodes[i].value;
+                                if(l == k) // On ne veut pas doubler les voltages
+                                    voltages(l) += nodes[i].value;
                                 break;
                             case POS_SOURCE:
-                                voltages(l) -= nodes[i].value;
+                                if(l == k)
+                                    voltages(l) -= nodes[i].value;
                                 break;
                             default:
                                 break;
@@ -162,9 +164,7 @@ std::vector<float> Circuit::get_amps(const std::vector<GraphMatrix>& loops)
         }
     }
 
-    // Le vecteur des voltages est positif, comme la matrice des résistances
-    voltages = voltages.cwiseAbs();
-
+    // DEBUG
     std::cout << resistances << std::endl;
     std::cout << voltages << std::endl;
 
@@ -180,6 +180,7 @@ std::vector<float> Circuit::get_amps(const std::vector<GraphMatrix>& loops)
 
 void Circuit::solve()
 {
+    // Matrice associé au circuit électrique
     const GraphMatrix adjacency_matrix = get_adjacency_matrix();
     const int n = adjacency_matrix.rows();
     // Mailles orientées du circuit

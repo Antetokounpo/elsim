@@ -19,7 +19,7 @@ struct Node
     int y;
     NodeType type;
     float value;
-    float intensity = 0.0f;
+    float intensity;
     float tension;
 
     friend bool operator==(const Node&, const Node&);

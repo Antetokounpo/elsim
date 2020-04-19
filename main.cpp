@@ -10,7 +10,8 @@
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Kirchhoff");
-    
+    window.setVerticalSyncEnabled(true);
+
     Circuit circuit;
     UI ui(circuit, window);
 

@@ -147,14 +147,12 @@ std::vector<GraphMatrix> Graph::get_fundamental_set_of_cycles(GraphMatrix a)
 
     std::vector<GraphMatrix> cycles;
 
-    int k = 0;
     for(int i = 0; i<n-1; ++i)
     {
         for(int j = i+1; j<n; ++j)
         {
             if(c(i, j) == 1)
             {
-                k++;
                 GraphMatrix dk = d;
                 dk(i, j) = 1;
                 dk(j, i) = 1;
