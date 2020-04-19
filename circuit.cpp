@@ -63,12 +63,6 @@ unsigned int Circuit::get_arrow_index(Arrow a) const
     return it - arrows.begin();
 }
 
-void Circuit::set_arrow_value(unsigned int index, int value, ArrowType type)
-{
-    arrows[index].type = type;
-    arrows[index].value = value;
-}
-
 void Circuit::set_node_value(unsigned int index, float value)
 {
     int node_type_offset = nodes[index].type % 2 ? 1 : -1;
@@ -76,6 +70,24 @@ void Circuit::set_node_value(unsigned int index, float value)
     // Les deux bornes de l'élément doivent avoir la même valeur, question de logique
     nodes[index].value = value;
     nodes[index+node_type_offset].value = value;
+}
+
+void Circuit::set_node_intensity(unsigned int index, float a)
+{
+    int node_type_offset = nodes[index].type % 2 ? 1 : -1;
+
+    // Les deux bornes de l'élément doivent avoir la même valeur, question de logique
+    nodes[index].intensity = a;
+    nodes[index+node_type_offset].intensity = a;
+}
+
+void Circuit::set_node_tension(unsigned int index, float v)
+{
+    int node_type_offset = nodes[index].type % 2 ? 1 : -1;
+
+    // Les deux bornes de l'élément doivent avoir la même valeur, question de logique
+    nodes[index].tension = v;
+    nodes[index+node_type_offset].tension = v;
 }
 
 GraphMatrix Circuit::get_adjacency_matrix() const
@@ -97,27 +109,7 @@ GraphMatrix Circuit::get_adjacency_matrix() const
     return m;
 }
 
-std::vector<unsigned int> Circuit::cycle_to_node_list(GraphMatrix cycle)
-{
-    int n = cycle.rows();
-    
-    std::vector<unsigned int> adjency_list;
-    for(int i = 0; i<n; ++i)
-    {
-        for(int j = 0; j<n; ++j)
-        {
-            if(cycle(i, j))
-            {
-                adjency_list.push_back(i);
-                adjency_list.push_back(j);
-            }
-        }
-    }
-
-    return adjency_list;
-}
-
-void Circuit::kirchoff_law(std::vector<GraphMatrix> loops)
+std::vector<float> Circuit::get_amps(const std::vector<GraphMatrix>& loops)
 {
     const int n = loops.size();
     Eigen::MatrixXf resistances(n, n);
@@ -136,6 +128,8 @@ void Circuit::kirchoff_law(std::vector<GraphMatrix> loops)
             {
                 for(int j = 0; j<m; ++j)
                 {
+                    set_node_intensity(i, 0); // Reset node's intensity
+
                     if(current_loop(i, j) != 2)
                         continue;
 
@@ -162,21 +156,55 @@ void Circuit::kirchoff_law(std::vector<GraphMatrix> loops)
                             default:
                                 break;
                         }
-
-                        if(k != l)
-                            resistances(l, k) = -resistances(l, k);
                     }
                 }
             }
         }
-
-        if(voltages(l) < 0)
-        {
-                resistances.row(l) = resistances.row(l).cwiseAbs();
-        }
     }
+
+    // Le vecteur des voltages est positif, comme la matrice des résistances
+    voltages = voltages.cwiseAbs();
 
     std::cout << resistances << std::endl;
     std::cout << voltages << std::endl;
-    std::cout << resistances.inverse() * voltages << std::endl;
+
+    // AX = B => X = (A^-1)(B)
+    Eigen::VectorXf amps = resistances.inverse() * voltages;
+    // Eigen vector to std::vector
+    std::vector<float> amps_vec;
+    amps_vec.resize(amps.size());
+    Eigen::VectorXf::Map(&amps_vec[0], amps.size()) = amps;
+
+    return amps_vec;
+}
+
+void Circuit::solve()
+{
+    const GraphMatrix adjacency_matrix = get_adjacency_matrix();
+    const int n = adjacency_matrix.rows();
+    // Mailles orientées du circuit
+    std::vector<GraphMatrix> loops = Graph::get_fundamental_set_of_cycles(adjacency_matrix);
+    // Vecteur des ampérages pour chaque boucle, le signe indique le sens du courant
+    std::vector<float> amps = get_amps(loops);
+
+    for(unsigned int l = 0; l<loops.size(); ++l)
+    {
+        for(int i = 0; i<n; ++i)
+        {
+            for(int j = 0; j<n; ++j)
+            {
+                if(!loops[l](i, j))
+                    continue;
+                if(nodes[i].type != POS_RESISTOR && nodes[i].type != NEG_RESISTOR)
+                    continue;
+
+                int type_offset = nodes[i].type % 2 ? 1 : -1;
+                if(nodes[i].type+type_offset == nodes[j].type && i == j-type_offset)
+                {
+                    set_node_intensity(i, nodes[i].intensity+amps[l]);
+                    set_node_tension(i, std::abs(nodes[i].intensity)*nodes[i].value);
+                }
+            }
+        }
+    }
 }

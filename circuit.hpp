@@ -13,18 +13,14 @@ enum NodeType
     POS_RESISTOR  // Cyan
 };
 
-enum class ArrowType
-{
-    RESISTANCE,
-    VOLTAGE
-};
-
 struct Node
 {
     int x;
     int y;
     NodeType type;
     float value;
+    float intensity = 0.0f;
+    float tension;
 
     friend bool operator==(const Node&, const Node&);
 };
@@ -33,8 +29,6 @@ struct Arrow
 {
     Node a;
     Node b;
-    ArrowType type;
-    float value;
 
     friend bool operator==(const Arrow&, const Arrow&);
 };
@@ -54,24 +48,18 @@ class Circuit
         const std::vector<Node>& get_nodes() const;
         const std::vector<Arrow>& get_arrows() const;
 
-        void set_arrow_value(unsigned int index, int value, ArrowType type);
         void set_node_value(unsigned int index, float value);
 
         unsigned int get_node_index(Node n) const;
         unsigned int get_arrow_index(Arrow a) const;
 
         GraphMatrix get_adjacency_matrix() const;
-        static std::vector<unsigned int> cycle_to_node_list(GraphMatrix cycle);
-        void kirchoff_law(std::vector<GraphMatrix> loops);
+        std::vector<float> get_amps(const std::vector<GraphMatrix>& loops);
+        void solve();
     private:
+        void set_node_intensity(unsigned int index, float a);
+        void set_node_tension(unsigned int index, float tension);
+
         std::vector<Node> nodes;
         std::vector<Arrow> arrows;
 };
-
-/*
-    TEMPORAIRE
-    Les caractéristiques d'un graphe représentant un circuit électrique sont:
-        - Anti-symétrique
-        - Connexe
-        - Cycle élémentaire
-*/

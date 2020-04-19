@@ -72,9 +72,21 @@ sf::Text UIGraphics::get_value_text(Node n)
 {
     sf::Text text;
     text.setFillColor(sf::Color::Black);
-    text.setString(std::to_string(n.value));
+    std::string value_string = std::to_string(n.value) + (n.type < 3 ? " V" : " O");
+    text.setString(value_string);
     text.setCharacterSize(10);
     text.setPosition(n.x+node_size.x, n.y+node_size.y);
+
+    return text;
+}
+
+sf::Text UIGraphics::get_intensity_text(Node n)
+{
+    sf::Text text;
+    text.setFillColor(sf::Color::Black);
+    text.setString(std::to_string(n.intensity)+" A");
+    text.setCharacterSize(10);
+    text.setPosition(n.x+node_size.x, n.y+node_size.y+15);
 
     return text;
 }

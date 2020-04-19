@@ -15,7 +15,9 @@ class UIGraphics
 
         sf::RectangleShape get_visual_node(Node n);
         sf::RectangleShape get_visual_arrow(Arrow a);
+
         sf::Text get_value_text(Node n);
+        sf::Text get_intensity_text(Node n);
 
         bool check_collision(Node n, int x, int y);
     private:

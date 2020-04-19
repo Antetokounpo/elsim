@@ -102,7 +102,7 @@ void UI::set_node_value(float value)
 void UI::handle_keyboard_inputs(sf::Event e)
 {
     if(e.key.code == sf::Keyboard::Enter && current_state == UIStates::NORMAL)
-        circuit.kirchoff_law(Graph::get_fundamental_set_of_cycles(circuit.get_adjacency_matrix()));
+        circuit.solve();
     else if(e.key.code == sf::Keyboard::D && current_state == UIStates::NORMAL)
         delete_selected_node();
     else if(current_state == UIStates::NORMAL)
@@ -251,7 +251,13 @@ void UI::draw()
 
         if(n.value)
         {
-            sf::Text text= ui_graphics.get_value_text(n);
+            sf::Text text = ui_graphics.get_value_text(n);
+            text.setFont(font);
+            window.draw(text);
+        }
+        if(n.intensity)
+        {
+            sf::Text text = ui_graphics.get_intensity_text(n);
             text.setFont(font);
             window.draw(text);
         }
