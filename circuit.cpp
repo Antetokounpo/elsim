@@ -188,6 +188,8 @@ void Circuit::solve()
     // Vecteur des ampérages pour chaque boucle, le signe indique le sens du courant
     std::vector<float> amps = get_amps(loops);
 
+    // BUG: Les boucles ne couvriront pas tout le circuit
+
     for(unsigned int l = 0; l<loops.size(); ++l)
     {
         for(int i = 0; i<n; ++i)
